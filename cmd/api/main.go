@@ -27,13 +27,13 @@ func main() {
 	flags := GetApiFlags()
 
 	if err := utils.InitEnvs(config.ServerEnvs(), flags.EnvFilePath); err != nil && flags.EnvValidate {
-		utils.LogError(&err)
 		panic(err)
 	}
 	_, err := database.DBConnect(database.GetDBConfig())
 	if err != nil {
 		panic(err)
 	}
-
-	server.StartServer()
+  if err := server.StartServer(); err != nil {
+    panic(err)
+  }
 }
