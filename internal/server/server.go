@@ -11,9 +11,17 @@ import (
 func StartServer() (err error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
 		w.Write([]byte("HyperCore Server"))
 	})
-	port := utils.GetEnvUint16(config.ServerPort, 8080)
-	err = http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
-  return
+
+	portNum := utils.GetEnvUint16(config.ServerPort, 8080)
+	port := fmt.Sprintf(":%d", portNum)
+
+	fmt.Printf("Server started on port %s\n", port)
+	err = http.ListenAndServe(port, mux)
+	return
 }
