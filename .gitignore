@@ -1,0 +1,54 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+
+# Vendor directory (optional, if you don't want to commit vendor deps)
+vendor/
+
+# Go build cache
+*.log
+*.test
+*.tmp
+*.prof
+*.cover
+*.cgo
+
+# Test binary
+*.test
+
+# Output of the go tool cover
+*.out
+
+# Dependency directories created by tools like dep or glide
+Godeps/
+vendor/
+
+# Go Modules
+go.sum
+go.work
+go.work.sum
+
+# IDE or editor-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS-specific files
+.DS_Store
+
+# Windows-specific files
+Thumbs.db
+Desktop.ini
+
+# Logs and debug files
+*.log
+*.trace
+*.prof
+
+# Temporary files
+*.tmp
+*.bak
