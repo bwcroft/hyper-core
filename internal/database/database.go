@@ -17,7 +17,7 @@ type DBConfig struct {
 	Port uint16
 }
 
-func GetDBConfig() (c DBConfig) {
+func GetConfig() (c DBConfig) {
 	c.Host = utils.GetEnvString(config.DBHost, "")
 	c.User = utils.GetEnvString(config.DBUser, "")
 	c.Pass = utils.GetEnvString(config.DBPass, "")
@@ -26,7 +26,7 @@ func GetDBConfig() (c DBConfig) {
 	return
 }
 
-func DBConnect(c DBConfig) (db *pgxpool.Pool, err error) {
+func Connect(c DBConfig) (db *pgxpool.Pool, err error) {
   ctx := context.Background()
 	cs := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Pass, c.Host, c.Port, c.Name)
 	db, err = pgxpool.New(ctx, cs)

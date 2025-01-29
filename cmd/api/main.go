@@ -15,14 +15,17 @@ func main() {
 	}
 
   /** Database Connection */
-	db, err := database.DBConnect(database.GetDBConfig())
+	db, err := database.Connect(database.GetConfig())
 	if err != nil {
 		panic(err)
 	}
   defer db.Close()
 
   /** Http Server */
-	if err := server.StartServer(db); err != nil {
+  sctx := server.ServerCtx{
+    DB: db,
+  }
+	if err := server.Start(&sctx); err != nil {
 		panic(err)
 	}
 }

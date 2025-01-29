@@ -12,9 +12,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func name() {}
+type ServerCtx struct {
+	DB *pgxpool.Pool
+}
 
-func StartServer(db *pgxpool.Pool) (err error) {
+func Start(sctx *ServerCtx) (err error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -24,7 +26,7 @@ func StartServer(db *pgxpool.Pool) (err error) {
 
 		var user models.User
 		query := "SELECT id, first_name, middle_name, last_name, email, phone, created_at, updated_at FROM USERS WHERE id = $1"
-		err := db.QueryRow(context.Background(), query, 1).Scan(
+		err := sctx.DB.QueryRow(context.Background(), query, 1).Scan(
 			&user.ID,
 			&user.FirstName,
 			&user.MiddleName,
