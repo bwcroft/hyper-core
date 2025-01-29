@@ -51,7 +51,7 @@ func InitEnvs(keys []string, filepath string) (err error) {
 	if len(missingKeys) > 0 {
 		err = errors.New(fmt.Sprintf("Missing envs: %s", strings.Join(missingKeys, ", ")))
 	}
-  return
+	return
 }
 
 func GetEnvString(key string, def string) string {

@@ -28,6 +28,6 @@ func GetDBConfig() (c DBConfig) {
 
 func DBConnect(c DBConfig) (db *pgx.Conn, err error) {
 	url := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Pass, c.Host, c.Port, c.Name)
-  db, err = pgx.Connect(context.Background(), url)
+	db, err = pgx.Connect(context.Background(), url)
 	return
 }

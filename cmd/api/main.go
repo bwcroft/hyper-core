@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-  if err := server.StartServer(); err != nil {
-    panic(err)
-  }
+	if err := server.StartServer(); err != nil {
+		panic(err)
+	}
 }
