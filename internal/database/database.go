@@ -1,11 +1,12 @@
 package database
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
+
 	"github.com/bwcroft/hyper-core/internal/config"
 	"github.com/bwcroft/hyper-core/utils"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5"
 )
 
 type DBConfig struct {
@@ -25,8 +26,8 @@ func GetDBConfig() (c DBConfig) {
 	return
 }
 
-func DBConnect(c DBConfig) (db *sql.DB, err error) {
+func DBConnect(c DBConfig) (db *pgx.Conn, err error) {
 	url := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Pass, c.Host, c.Port, c.Name)
-	db, err = sql.Open("postgres", url)
+  db, err = pgx.Connect(context.Background(), url)
 	return
 }
