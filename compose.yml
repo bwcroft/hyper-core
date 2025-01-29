@@ -1,0 +1,12 @@
+services:
+  goose:
+    build:
+      context: .
+      target: goose
+      dockerfile: Dockerfile
+    volumes:
+      - ./migrations:/app/migrations
+    environment:
+      GOOSE_DRIVER: ${GOOSE_DRIVER}
+      GOOSE_MIGRATION_DIR: ${GOOSE_MIGRATION_DIR}
+      GOOSE_DBSTRING: ${GOOSE_DBSTRING}
