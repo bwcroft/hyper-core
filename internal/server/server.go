@@ -9,12 +9,12 @@ import (
 	"github.com/bwcroft/hyper-core/internal/config"
 	"github.com/bwcroft/hyper-core/internal/database/models"
 	"github.com/bwcroft/hyper-core/utils"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func name() {}
 
-func StartServer(db *pgx.Conn) (err error) {
+func StartServer(db *pgxpool.Pool) (err error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {

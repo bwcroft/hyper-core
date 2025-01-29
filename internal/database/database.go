@@ -6,7 +6,7 @@ import (
 
 	"github.com/bwcroft/hyper-core/internal/config"
 	"github.com/bwcroft/hyper-core/utils"
-	"github.com/jackc/pgx/v5"
+  "github.com/jackc/pgx/v5/pgxpool"
 )
 
 type DBConfig struct {
@@ -26,8 +26,9 @@ func GetDBConfig() (c DBConfig) {
 	return
 }
 
-func DBConnect(c DBConfig) (db *pgx.Conn, err error) {
-	url := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Pass, c.Host, c.Port, c.Name)
-	db, err = pgx.Connect(context.Background(), url)
+func DBConnect(c DBConfig) (db *pgxpool.Pool, err error) {
+  ctx := context.Background()
+	cs := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Pass, c.Host, c.Port, c.Name)
+	db, err = pgxpool.New(ctx, cs)
 	return
 }
