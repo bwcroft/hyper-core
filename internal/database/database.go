@@ -18,10 +18,10 @@ type DBConfig struct {
 }
 
 func GetDBConfig() (c DBConfig) {
-	c.Host = utils.GetEnvString(config.DBHost, "localhost")
-	c.User = utils.GetEnvString(config.DBUser, "root")
-	c.Pass = utils.GetEnvString(config.DBPass, "root")
-	c.Name = utils.GetEnvString(config.DBName, "hypercore")
+	c.Host = utils.GetEnvString(config.DBHost, "")
+	c.User = utils.GetEnvString(config.DBUser, "")
+	c.Pass = utils.GetEnvString(config.DBPass, "")
+	c.Name = utils.GetEnvString(config.DBName, "")
 	c.Port = utils.GetEnvUint16(config.DBPort, 5432)
 	return
 }
