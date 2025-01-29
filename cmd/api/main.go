@@ -12,11 +12,11 @@ func main() {
 	if err := utils.InitEnvs(config.ServerEnvs(), flags.EnvFilePath); err != nil && flags.EnvValidate {
 		panic(err)
 	}
-	_, err := database.DBConnect(database.GetDBConfig())
+	db, err := database.DBConnect(database.GetDBConfig())
 	if err != nil {
 		panic(err)
 	}
-	if err := server.StartServer(); err != nil {
+	if err := server.StartServer(db); err != nil {
 		panic(err)
 	}
 }
