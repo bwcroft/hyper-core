@@ -7,6 +7,8 @@ import (
 	"github.com/bwcroft/hyper-core/internal/config"
 	"github.com/bwcroft/hyper-core/utils"
   "github.com/jackc/pgx/v5/pgxpool"
+  "github.com/jackc/pgx/v5/stdlib"
+  "github.com/jmoiron/sqlx"
 )
 
 type DBConfig struct {
@@ -26,9 +28,13 @@ func GetConfig() (c DBConfig) {
 	return
 }
 
-func Connect(c DBConfig) (db *pgxpool.Pool, err error) {
+func Connect(c DBConfig) (*sqlx.DB, error) {
   ctx := context.Background()
 	cs := fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Pass, c.Host, c.Port, c.Name)
-	db, err = pgxpool.New(ctx, cs)
-	return
+  pool, err := pgxpool.New(ctx, cs)
+  if err != nil {
+    return nil, err
+  }
+  db := sqlx.NewDb(stdlib.OpenDBFromPool(pool), "pgx")
+  return db, nil
 }

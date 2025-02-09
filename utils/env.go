@@ -12,7 +12,7 @@ import (
 func LoadEnvFile(filepath string) {
 	file, err := os.Open(filepath)
 	if err != nil {
-		LogError(&err)
+		LogError(err)
 		return
 	}
 	defer file.Close()

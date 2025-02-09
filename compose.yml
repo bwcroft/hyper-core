@@ -7,6 +7,6 @@ services:
     volumes:
       - ./migrations:/app/migrations
     environment:
-      GOOSE_DRIVER: ${GOOSE_DRIVER}
-      GOOSE_MIGRATION_DIR: ${GOOSE_MIGRATION_DIR}
       GOOSE_DBSTRING: ${GOOSE_DBSTRING}
+      GOOSE_DRIVER: ${GOOSE_DRIVER:-postgres}
+      GOOSE_MIGRATION_DIR: ${GOOSE_MIGRATION_DIR:-./migrations}

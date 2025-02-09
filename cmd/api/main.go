@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/bwcroft/hyper-core/internal/config"
 	"github.com/bwcroft/hyper-core/internal/database"
-	"github.com/bwcroft/hyper-core/internal/server"
+	"github.com/bwcroft/hyper-core/internal/routes"
 	"github.com/bwcroft/hyper-core/utils"
 )
 
@@ -22,10 +22,9 @@ func main() {
   defer db.Close()
 
   /** Http Server */
-  sctx := server.ServerCtx{
-    DB: db,
-  }
-	if err := server.Start(&sctx); err != nil {
+	port := utils.GetEnvUint16(config.ServerPort, 8080)
+  server := routes.InitRoutes(db)
+	if err := server.Listen(port); err != nil {
 		panic(err)
 	}
 }
