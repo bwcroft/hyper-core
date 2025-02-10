@@ -3,7 +3,6 @@ package router
 import (
 	"fmt"
 	"net/http"
-	// "strings"
 	"time"
 
 	"github.com/bwcroft/hyper-core/utils"
@@ -21,7 +20,8 @@ func (w *wrappedWriter) WriteHeader(statusCode int) {
 	w.statusCode = statusCode
 }
 
-func StackMiddlerware(m ...Middleware) Middleware {
+// StackMiddleware chains multiple middleware functions 
+func StackMiddleware(m ...Middleware) Middleware {
 	return func(next http.Handler) http.Handler {
 		for i := len(m) - 1; i >= 0; i-- {
 			next = m[i](next)
@@ -30,7 +30,10 @@ func StackMiddlerware(m ...Middleware) Middleware {
 	}
 }
 
-func RequestLog(next http.Handler) http.Handler {
+// LoggerMiddleware is responsible for logging details of each incoming request, 
+// including the method, URL, and timestamp. It helps track and monitor requests 
+// made to the server for debugging and performance analysis.
+func LoggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -44,24 +47,16 @@ func RequestLog(next http.Handler) http.Handler {
 	})
 }
 
-func ValidatePath(routes map[string]HttpMethod) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			reqRoute := r.URL.Path
-			isValid := false
-			for route := range routes {
-        fmt.Printf("ReqRoute: %s, Route: %s\n", reqRoute, route)
-				if reqRoute == route{
-					isValid = true
-					break
-				}
-        //TODO: If not exact match, check that we have a match with a unique url param
-			}
-			if !isValid {
-				http.NotFound(w, r)
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	}
+// NotFoundMiddleware prevents unknown paths from falling back to the base route 
+// in the standard HTTP router. It checks if the requested path is valid and 
+// returns a 404 Not Found response for unrecognized paths.
+// Use only with base HTTP methods and the root path ("/"), such as GET /, POST /, etc.
+func NotFoundMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    if r.URL.Path != "/" {
+		  http.Error(w, "", http.StatusNotFound)
+      return
+    } 
+    next.ServeHTTP(w, r)
+	})
 }

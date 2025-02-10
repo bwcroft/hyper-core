@@ -19,11 +19,10 @@ func InitRoutes(db *sqlx.DB) (routes *router.Mux) {
 	})
 
 	v1 := routes.Group("/v1")
-	users := v1.Group("/users")
-	users.Get("/", handlers.GetUser)
-	users.Post("/", handlers.GetUser)
-	users.Put("/", handlers.GetUser)
-	users.Patch("/", handlers.GetUser)
-	users.Delete("/", handlers.GetUser)
+	v1.Get("/users", handlers.GetUser)
+	v1.Post("/users", handlers.GetUser)
+	v1.Put("/users", handlers.GetUser)
+	v1.Patch("/users", handlers.GetUser)
+	v1.Delete("/users", handlers.GetUser)
 	return
 }

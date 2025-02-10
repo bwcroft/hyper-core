@@ -3,118 +3,88 @@ package router
 import (
 	"fmt"
 	"net/http"
-	"sort"
 
 	"github.com/bwcroft/hyper-core/utils"
 )
 
-type HttpMethod string
-
-const (
-	HttpGet    HttpMethod = "GET"
-	HttpPost   HttpMethod = "POST"
-	HttpPut    HttpMethod = "PUT"
-	HttpPatch  HttpMethod = "PATCH"
-	HttpDelete HttpMethod = "DELETE"
-)
-
 type Mux struct {
 	*http.ServeMux
-
-	/** Route path is the key and request type is the value */
-	routes map[string]HttpMethod
-
-	/** If group path if the mux is apart of one */
-	groupPath string
-
-	/** The parent mux of the children */
-	parent *Mux
+	parent           *Mux
+	prefix           string
+	prefixMethods    map[string]bool
+	prefixMiddleware *[]Middleware
 }
 
 func New() *Mux {
 	return &Mux{
 		ServeMux: http.NewServeMux(),
-		routes:   make(map[string]HttpMethod),
 	}
 }
 
-func (mux *Mux) createHandler(method HttpMethod, path string, fn http.HandlerFunc, m ...Middleware) {
-	route := fmt.Sprintf("%s%s", mux.groupPath, path)
-	if mux.parent != nil && mux.parent.routes != nil {
-		(mux.parent.routes)[route] = method
-	} else if mux.routes != nil {
-		(mux.routes)[route] = method
+func (mux *Mux) createPrefix(method string) {
+	if mux.parent == nil || mux.prefix == "" || mux.prefixMethods == nil || mux.prefixMethods[method] {
+		return
 	}
-	stack := StackMiddlerware(m...)
-	mux.Handle(fmt.Sprintf("%s %s", method, path), stack(fn))
-}
-
-func (mux *Mux) RoutesList() (rs []string) {
-	if mux.routes != nil {
-    //TODO: Fix missing routes
-    for k, v := range mux.routes {
-      rs = append(rs, fmt.Sprintf("%s %s", k, v))
-    }
-	}
-	sort.Strings(rs)
+	stack := StackMiddleware(*mux.prefixMiddleware...)
+	fmt.Printf("Prefix: %s %s/\n", method, mux.prefix)
+	mux.parent.Handle(fmt.Sprintf("%s %s/", method, mux.prefix), http.StripPrefix(mux.prefix, stack(mux)))
+	mux.prefixMethods[method] = true
 	return
+}
+
+func (mux *Mux) createHandler(method string, path *string, fn *http.HandlerFunc, m *[]Middleware) {
+	mux.createPrefix(method)
+	stack := StackMiddleware(*m...)
+	mux.Handle(fmt.Sprintf("%s %s", method, *path), stack(fn))
 }
 
 func (mux *Mux) Get(path string, fn http.HandlerFunc, m ...Middleware) {
-	mux.createHandler(HttpGet, path, fn, m...)
+	mux.createHandler(http.MethodGet, &path, &fn, &m)
 }
 
 func (mux *Mux) Post(path string, fn http.HandlerFunc, m ...Middleware) {
-	mux.createHandler(HttpPost, path, fn, m...)
+	mux.createHandler(http.MethodPost, &path, &fn, &m)
 }
 
 func (mux *Mux) Put(path string, fn http.HandlerFunc, m ...Middleware) {
-	mux.createHandler(HttpPut, path, fn, m...)
+	mux.createHandler(http.MethodPut, &path, &fn, &m)
 }
 
 func (mux *Mux) Patch(path string, fn http.HandlerFunc, m ...Middleware) {
-	mux.createHandler(HttpPatch, path, fn, m...)
+	mux.createHandler(http.MethodPatch, &path, &fn, &m)
 }
 
 func (mux *Mux) Delete(path string, fn http.HandlerFunc, m ...Middleware) {
-	mux.createHandler(HttpDelete, path, fn, m...)
+	mux.createHandler(http.MethodDelete, &path, &fn, &m)
 }
 
-func (mux *Mux) Group(path string, m ...Middleware) (cmux *Mux) {
-	cmux = &Mux{
-		ServeMux:  http.NewServeMux(),
-		groupPath: fmt.Sprintf("%s%s", mux.groupPath, path),
-	}
-	if mux.parent != nil {
-		cmux.parent = mux.parent
-	} else {
-		cmux.parent = mux
-	}
+func (mux *Mux) Connect(path string, fn http.HandlerFunc, m ...Middleware) {
+	mux.createHandler(http.MethodConnect, &path, &fn, &m)
+}
 
-	stack := StackMiddlerware(m...)
-	httpMethods := [5]HttpMethod{HttpGet, HttpPost, HttpPut, HttpPatch, HttpDelete}
-	for _, m := range httpMethods {
-		mux.Handle(fmt.Sprintf("%s %s/", m, path), http.StripPrefix(path, stack(cmux)))
+func (mux *Mux) Options(path string, fn http.HandlerFunc, m ...Middleware) {
+	mux.createHandler(http.MethodOptions, &path, &fn, &m)
+}
+
+func (mux *Mux) Group(prefix string, m ...Middleware) *Mux {
+	return &Mux{
+		ServeMux:         http.NewServeMux(),
+		prefix:           prefix,
+		prefixMethods:    make(map[string]bool),
+		prefixMiddleware: &m,
+		parent:           mux,
 	}
-	return
 }
 
 func (mux *Mux) Listen(port uint16) (err error) {
-  stack := StackMiddlerware(
-    RequestLog,
-    ValidatePath(mux.routes),
-  )
+	stack := StackMiddleware(LoggerMiddleware)
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: stack(mux),
 	}
-
-	utils.InfoBox(append([]string{
-    "HyperCore: 1.0.0",
-	  fmt.Sprintf("Server Port %d", port),
-    "Routes:",
-	}, mux.RoutesList()...))
-
+	utils.InfoBox([]string{
+		fmt.Sprintf("HyperCore - running on port %d", port),
+	})
 	err = server.ListenAndServe()
-  return
+	return
 }
