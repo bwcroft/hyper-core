@@ -1,4 +1,4 @@
-package utils
+package env 
 
 import (
 	"bufio"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func LoadEnvFile(filepath string) {
+func loadEnvFile(filepath string) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		LogError(err)
@@ -41,7 +41,7 @@ func LoadEnvFile(filepath string) {
 func InitEnvs(keys []string, filepath string) (err error) {
 	var missingKeys []string
 	if filepath != "" {
-		LoadEnvFile(filepath)
+		loadEnvFile(filepath)
 	}
 	for _, k := range keys {
 		if v := os.Getenv(k); v == "" {
