@@ -42,6 +42,10 @@ func (mux *Mux) Get(path string, fn http.HandlerFunc, m ...Middleware) {
 	mux.createHandler(http.MethodGet, &path, &fn, &m)
 }
 
+func (mux *Mux) Head(path string, fn http.HandlerFunc, m ...Middleware) {
+	mux.createHandler(http.MethodHead, &path, &fn, &m)
+}
+
 func (mux *Mux) Post(path string, fn http.HandlerFunc, m ...Middleware) {
 	mux.createHandler(http.MethodPost, &path, &fn, &m)
 }
@@ -64,6 +68,10 @@ func (mux *Mux) Connect(path string, fn http.HandlerFunc, m ...Middleware) {
 
 func (mux *Mux) Options(path string, fn http.HandlerFunc, m ...Middleware) {
 	mux.createHandler(http.MethodOptions, &path, &fn, &m)
+}
+
+func (mux *Mux) Trace(path string, fn http.HandlerFunc, m ...Middleware) {
+	mux.createHandler(http.MethodTrace, &path, &fn, &m)
 }
 
 func (mux *Mux) Group(prefix string, m ...Middleware) *Mux {
