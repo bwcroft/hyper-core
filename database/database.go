@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bwcroft/hyper-core/env"
+	"github.com/bwcroft/hypercore/env"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"

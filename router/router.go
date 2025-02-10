@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bwcroft/hyper-core/utils"
+	"github.com/bwcroft/hypercore/utils"
 )
 
 type Mux struct {

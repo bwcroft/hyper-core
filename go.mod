@@ -1,4 +1,4 @@
-module github.com/bwcroft/hyper-core
+module github.com/bwcroft/hypercore
 
 go 1.23.4
 

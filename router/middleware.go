@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bwcroft/hyper-core/utils"
+	"github.com/bwcroft/hypercore/utils"
 )
 
 type Middleware func(http.Handler) http.Handler
