@@ -9,15 +9,16 @@ import (
 
 type Mux struct {
 	*http.ServeMux
-	parent           *Mux
-	prefix           string
-	prefixMethods    map[string]bool
-	prefixMiddleware *[]Middleware
+	parent        *Mux
+	prefix        string
+	prefixMethods map[string]bool
+	middleware    *[]Middleware
 }
 
-func New() *Mux {
+func New(m ...Middleware) *Mux {
 	return &Mux{
-		ServeMux: http.NewServeMux(),
+		ServeMux:   http.NewServeMux(),
+		middleware: &m,
 	}
 }
 
@@ -25,7 +26,7 @@ func (mux *Mux) createPrefix(method string) {
 	if mux.parent == nil || mux.prefix == "" || mux.prefixMethods == nil || mux.prefixMethods[method] {
 		return
 	}
-	stack := StackMiddleware(*mux.prefixMiddleware...)
+	stack := StackMiddleware(mux.middleware)
 	fmt.Printf("Prefix: %s %s/\n", method, mux.prefix)
 	mux.parent.Handle(fmt.Sprintf("%s %s/", method, mux.prefix), http.StripPrefix(mux.prefix, stack(mux)))
 	mux.prefixMethods[method] = true
@@ -34,8 +35,7 @@ func (mux *Mux) createPrefix(method string) {
 
 func (mux *Mux) createHandler(method string, path *string, fn *http.HandlerFunc, m *[]Middleware) {
 	mux.createPrefix(method)
-	stack := StackMiddleware(*m...)
-	mux.Handle(fmt.Sprintf("%s %s", method, *path), stack(fn))
+	mux.Handle(fmt.Sprintf("%s %s", method, *path), StackMiddleware(m)(fn))
 }
 
 func (mux *Mux) Get(path string, fn http.HandlerFunc, m ...Middleware) {
@@ -76,19 +76,18 @@ func (mux *Mux) Trace(path string, fn http.HandlerFunc, m ...Middleware) {
 
 func (mux *Mux) Group(prefix string, m ...Middleware) *Mux {
 	return &Mux{
-		ServeMux:         http.NewServeMux(),
-		prefix:           prefix,
-		prefixMethods:    make(map[string]bool),
-		prefixMiddleware: &m,
-		parent:           mux,
+		ServeMux:      http.NewServeMux(),
+		parent:        mux,
+		prefix:        prefix,
+		prefixMethods: make(map[string]bool),
+		middleware:    &m,
 	}
 }
 
 func (mux *Mux) Listen(port uint16) (err error) {
-	stack := StackMiddleware(LoggerMiddleware)
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: stack(mux),
+		Handler: StackMiddleware(mux.middleware)(mux),
 	}
 	utils.InfoBox([]string{
 		fmt.Sprintf("HyperCore - running on port %d", port),

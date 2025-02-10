@@ -21,10 +21,10 @@ func (w *wrappedWriter) WriteHeader(statusCode int) {
 }
 
 // StackMiddleware chains multiple middleware functions 
-func StackMiddleware(m ...Middleware) Middleware {
+func StackMiddleware(m *[]Middleware) Middleware {
 	return func(next http.Handler) http.Handler {
-		for i := len(m) - 1; i >= 0; i-- {
-			next = m[i](next)
+		for i := len(*m) - 1; i >= 0; i-- {
+			next = (*m)[i](next)
 		}
 		return next
 	}

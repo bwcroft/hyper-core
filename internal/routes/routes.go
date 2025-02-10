@@ -10,7 +10,10 @@ import (
 )
 
 func InitRoutes(db *sqlx.DB) (routes *router.Mux) {
-	routes = router.New()
+	routes = router.New(
+    router.LoggerMiddleware,
+  )
+
 	routes.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hyper Core")
 	})
